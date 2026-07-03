@@ -1,0 +1,241 @@
+local player = game:GetService("Players").LocalPlayer
+local HttpService = game:GetService("HttpService")
+local TweenService = game:GetService("TweenService")
+local baseURL = "https://raw.githubusercontent.com/Kim-Perry32/Perry-Hub/refs/heads/main/"
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "LoadingScreen"
+screenGui.Parent = player.PlayerGui
+screenGui.ResetOnSpawn = false
+screenGui.IgnoreGuiInset = true
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(1.1, 0, 1.1, 0)
+frame.Position = UDim2.new(-0.05, 0, -0.05, 0)
+frame.BackgroundColor3 = Color3.new(0, 0, 0)
+frame.BackgroundTransparency = 0
+frame.BorderSizePixel = 0
+frame.Parent = screenGui
+
+local loadingText = Instance.new("TextLabel")
+loadingText.Size = UDim2.new(1, 0, 0.1, 0)
+loadingText.Position = UDim2.new(0, 0, 0.35, 0)
+loadingText.BackgroundTransparency = 1
+loadingText.Text = "AUTHENTICATION PENDING....."
+loadingText.TextColor3 = Color3.new(1, 1, 1)
+loadingText.TextSize = 35
+loadingText.Font = Enum.Font.GothamBold
+loadingText.TextScaled = true
+loadingText.Parent = screenGui
+
+local statusText = Instance.new("TextLabel")
+statusText.Size = UDim2.new(1, 0, 0.05, 0)
+statusText.Position = UDim2.new(0, 0, 0.50, 0)
+statusText.BackgroundTransparency = 1
+statusText.Text = ""
+statusText.TextColor3 = Color3.new(0.5, 0.5, 0.5)
+statusText.TextSize = 18
+statusText.Font = Enum.Font.Gotham
+statusText.TextScaled = true
+statusText.Parent = screenGui
+
+local loadingBar = Instance.new("Frame")
+loadingBar.Size = UDim2.new(0.6, 0, 0.025, 0)
+loadingBar.Position = UDim2.new(0.2, 0, 0.60, 0)
+loadingBar.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
+loadingBar.BorderSizePixel = 0
+loadingBar.Parent = screenGui
+
+local progressBar = Instance.new("Frame")
+progressBar.Size = UDim2.new(0, 0, 1, 0)
+progressBar.BackgroundColor3 = Color3.new(0.3, 0.7, 1)
+progressBar.BorderSizePixel = 0
+progressBar.Parent = loadingBar
+
+local barCorner = Instance.new("UICorner")
+barCorner.CornerRadius = UDim.new(0, 4)
+barCorner.Parent = loadingBar
+
+local progressCorner = Instance.new("UICorner")
+progressCorner.CornerRadius = UDim.new(0, 4)
+progressCorner.Parent = progressBar
+
+local bottomText = Instance.new("TextLabel")
+bottomText.Size = UDim2.new(1, 0, 0.04, 0)
+bottomText.Position = UDim2.new(0, 0, 0.92, 0)
+bottomText.BackgroundTransparency = 1
+bottomText.Text = "Perry Hub"
+bottomText.TextColor3 = Color3.new(0.3, 0.3, 0.3)
+bottomText.TextSize = 14
+bottomText.Font = Enum.Font.Gotham
+bottomText.TextScaled = true
+bottomText.Parent = screenGui
+
+local function updateStatus(text, progress, color)
+    statusText.Text = text
+    statusText.TextColor3 = color or Color3.new(0.5, 0.5, 0.5)
+    local targetSize = UDim2.new(progress, 0, 1, 0)
+    local tweenInfo = TweenInfo.new(1.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    local tween = TweenService:Create(progressBar, tweenInfo, {Size = targetSize})
+    tween:Play()
+    local colorTween = TweenService:Create(progressBar, tweenInfo, {BackgroundColor3 = color or Color3.new(0.3, 0.7, 1)})
+    colorTween:Play()
+    task.wait(2)
+end
+
+local dots = ""
+spawn(function()
+    while screenGui.Parent do
+        dots = dots .. "."
+        if #dots > 3 then dots = "" end
+        if loadingText and loadingText.Parent then
+            local currentText = loadingText.Text:gsub("%.%.?%.?", "")
+            loadingText.Text = currentText .. dots
+        end
+        task.wait(0.5)
+    end
+end)
+
+local ID = game.PlaceId
+local GameId = game.GameId
+
+local supportedGames = {
+    [131667667758514] = {name = "Diesel n Steel", file = "Dieselnsteel.lua"},
+    [110512691975901] = {name = "Cebu Consolacion", file = "Cebu.lua"}
+}
+
+local vblGameId = "6931042565"
+local vblGameName = "Volleyball Legends"
+local vblFile = "VBL.lua"
+
+local blueLockGameId = "6325068386"
+local blueLockGameName = "Blue Lock Rivals"
+local blueLockFile = "blck.lua"
+
+local bloxFruitsGameId = "994732206"
+local bloxFruitsGameName = "Blox Fruits"
+local bloxFruitsFile = "Bloxfruits.lua"
+
+local deadRailsGameId = "7018190066"
+local deadRailsGameName = "Dead Rails"
+local deadRailsFile = "dead.lua"
+
+local sellLemonGameId = "7395930870"
+local sellLemonGameName = "Sell Lemon"
+local sellLemonFile = "sell.lua"
+
+local surviveZombieGameId = "9348272796"
+local surviveZombieGameName = "Survive Zombie Arena"
+local surviveZombieFile = "survive.lua"
+
+local strengthGameId = "10044664735"
+local strengthGameName = "+1 Strength to escape"
+local strengthFile = "strength.lua"
+
+loadingText.Text = "AUTHENTICATION PENDING....."
+updateStatus("Connecting to server...", 0.1, Color3.new(0.3, 0.7, 1))
+
+local gameName = nil
+local scriptToLoad = nil
+
+if supportedGames[ID] then
+    gameName = supportedGames[ID].name
+    scriptToLoad = supportedGames[ID].file
+elseif tostring(GameId) == vblGameId then
+    gameName = vblGameName
+    scriptToLoad = vblFile
+elseif tostring(ID) == blueLockGameId or tostring(GameId) == blueLockGameId then
+    gameName = blueLockGameName
+    scriptToLoad = blueLockFile
+elseif tostring(GameId) == bloxFruitsGameId then
+    gameName = bloxFruitsGameName
+    scriptToLoad = bloxFruitsFile
+elseif tostring(GameId) == deadRailsGameId then
+    gameName = deadRailsGameName
+    scriptToLoad = deadRailsFile
+elseif tostring(GameId) == sellLemonGameId then
+    gameName = sellLemonGameName
+    scriptToLoad = sellLemonFile
+elseif tostring(GameId) == surviveZombieGameId then
+    gameName = surviveZombieGameName
+    scriptToLoad = surviveZombieFile
+elseif tostring(GameId) == strengthGameId then
+    gameName = strengthGameName
+    scriptToLoad = strengthFile
+end
+
+loadingText.Text = "CHECKING WHITELIST....."
+updateStatus("Verifying user credentials...", 0.3, Color3.new(1, 0.8, 0.2))
+
+local API_URL = "https://samatala-lant-production.up.railway.app"
+
+local function checkWhitelist()
+    local success, response = pcall(function()
+        return game:HttpGet(API_URL .. "/checkwhitelist?userId=" .. player.Name)
+    end)
+    if success then
+        local data = HttpService:JSONDecode(response)
+        return data.whitelisted
+    end
+    return false
+end
+
+local isWhitelisted = checkWhitelist()
+
+if not gameName then
+    loadingText.Text = "GAME NOT FOUND"
+    loadingText.TextColor3 = Color3.new(1, 0, 0)
+    updateStatus("This game is not supported!", 0.5, Color3.new(1, 0, 0))
+    pcall(function() game:HttpGet(API_URL .. "/game?player=" .. player.Name .. "&game=Unknown&status=denied") end)
+    task.wait(2)
+    screenGui:Destroy()
+    return
+end
+
+pcall(function()
+    game:HttpGet(API_URL .. "/game?player=" .. player.Name .. "&game=" .. HttpService:UrlEncode(gameName) .. "&status=" .. (isWhitelisted and "whitelisted" or "denied"))
+end)
+
+loadingText.Text = "GAME FOUND"
+loadingText.TextColor3 = Color3.new(0.3, 1, 0.3)
+updateStatus('"' .. gameName .. '" detected', 0.6, Color3.new(0.3, 1, 0.3))
+
+if isWhitelisted then
+    loadingText.Text = "VERIFYING ACCESS....."
+    updateStatus("Access granted!", 0.8, Color3.new(0.3, 1, 0.3))
+    task.wait(0.5)
+    
+    loadingText.Text = "SUCCESSFULLY LOADING"
+    loadingText.TextColor3 = Color3.new(0.3, 0.7, 1)
+    updateStatus("Loading script...", 0.9, Color3.new(0.3, 0.7, 1))
+    task.wait(0.5)
+    
+    local finalTween = TweenService:Create(progressBar, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = Color3.new(0.3, 1, 0.3)})
+    finalTween:Play()
+    statusText.Text = "Ready!"
+    statusText.TextColor3 = Color3.new(0.3, 1, 0.3)
+    task.wait(1)
+    
+    local fadeOut = TweenService:Create(frame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 1})
+    fadeOut:Play()
+    task.wait(0.5)
+    screenGui:Destroy()
+    task.wait(0.5)
+    
+    if scriptToLoad then loadstring(game:HttpGet(baseURL .. scriptToLoad))() end
+    
+    for _, v in next, getconnections(player.Idled) do v:Disable() end
+    local VirtualUser = game:GetService("VirtualUser")
+    getgenv().afk_toggle = getgenv().afk_toggle or false
+    player.Idled:Connect(function()
+        if getgenv().afk_toggle then
+            pcall(function() VirtualUser:CaptureController() VirtualUser:ClickButton2(Vector2.new()) end)
+        end
+    end)
+else
+    loadingText.Text = "ACCESS DENIED"
+    loadingText.TextColor3 = Color3.new(1, 0, 0)
+    updateStatus("Not whitelisted!", 0.8, Color3.new(1, 0, 0))
+    task.wait(2)
+    screenGui:Destroy()
+end
